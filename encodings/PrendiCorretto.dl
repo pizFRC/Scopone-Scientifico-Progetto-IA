@@ -1,0 +1,39 @@
+
+
+
+cartaScelta(X,Y)|nonScelta(X,Y):-mano(X,Y).
+:-#count{X,Y:cartaScelta(X,Y)}!=1.
+DaPrendere(X,Y,X1,Y1)| DaNonPrendere(X,Y,X1,Y1):-terra(X,Y),cartaScelta(X1,Y1).
+
+
+
+%numeroCarte(C):-#count{X,Y:DaPrendere(carta(_,_),cartaScelta(carta(X,Y)))}=C.
+%:-mano(carta(X1,Y1)),#sum{X,Y:DaPrendere(carta(X,Y),cartaScelta(carta(X1,Y1)))}!=X1.
+somma(D,X1,Y1):-cartaScelta(X1,Y1),#sum{X,Y:DaPrendere(X,Y,X1,Y1)}=D.
+:-somma(S,X1,Y1),S!=X1,cartaScelta(X1,Y1).
+scelte(S):-#count{X,Y:cartaScelta(X,Y)}=S.
+%c(D):-#count{S:somma(S,carta(_,Y_)),S>1}=D.
+
+%nonAccessibili(carta(X,Y)):-terra(carta(X,Y)),not cartaScelta(carta(X,Y)).
+sommaTerra(S):-#sum{X,Y:terra(X,Y)}=S.
+totTerra(S):-#count{X,Y:terra(X,Y)}=S.
+%SCOPA
+cartePrese(N,X1,Y1):-#count{X,Y:DaPrendere(X,Y,X1,Y1)}=N,N>0,cartaScelta(X1,Y1).
+nonPrese(N,X1,Y1):-#count{X,Y:DaNonPrendere(X,Y,X1,Y1)}=N,cartaScelta(X1,Y1).
+
+oroNonPrese(N,X1,Y1):-#count{X,"denari":DaNonPrendere(X,"denari",X1,Y1)}=N,cartaScelta(X1,Y1).
+scopa(X1,Y1):-cartePrese(N,X1,Y1),nonPrese(N1,X1,Y1),N>0,N1=0,sommaTerra(S),S<11.
+
+%nessunaPossibilePresa(carta(X,Y)):- not cartaScelta(carta(X,Y)),not nonScelta(carta(X,Y)),mano(carta(X,Y)).
+
+:~not cartaScelta(X,Y),scopa(X,Y). [4@1]
+
+%PAGO 1 PER OGNI CARTA NON PRESA VOGLIO MASSIMIZZARE IL NUMERO DI CARTE PRESE
+:~cartePrese(N,X,Y),totTerra(C).[C-N@3,cartePrese(N,X,Y)]
+:~oroNonPrese(N,X1,Y1),totTerra(C). [N@2,oroNonPrese(N,X1,Y1)]
+
+
+setteNonPreso:-terra(7,Y),DaNonPrendere(7,Y,X1,Y1),X1>=7.
+seiNonPreso:-terra(6,Y),DaNonPrendere(6,Y,X1,Y1),X1>=6.
+:~setteNonPreso.[1@4]
+:~seiNonPreso.[1@5]
